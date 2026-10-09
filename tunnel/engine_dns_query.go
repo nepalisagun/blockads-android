@@ -111,6 +111,19 @@ func (e *Engine) handleDNSQuery(queryInfo *DNSQueryInfo) {
 		}
 	}
 
+	// ── Quantumult X Ruleset Matching ──
+	if qMatcher := e.quanxMatcher.Load(); qMatcher != nil {
+		policy, matchedRule := qMatcher.MatchNetIP(domain, queryInfo.SourceIP)
+		if strings.HasPrefix(policy, "REJECT") {
+			e.handleBlockedDomain(queryInfo, "quanx:"+matchedRule, appName, startTime)
+			return
+		} else if policy == "DIRECT" && matchedRule != "FINAL" {
+			// Explicit DIRECT rule overrides general blocklists
+			e.handleForward(queryInfo, appName, startTime)
+			return
+		}
+	}
+
 	// Fast Native Go Domain blocking check — Bloom Filter pre-filter + Mmap Trie
 	//
 	// Step 1: Bloom Filter (O(1)) — if it says "definitely not blocked", skip the trie entirely.

@@ -3,6 +3,7 @@ package tunnel
 import (
 	"github.com/nqmgaming/blockads-tunnel/internal/bloom"
 	internaldns "github.com/nqmgaming/blockads-tunnel/internal/dns"
+	"github.com/nqmgaming/blockads-tunnel/internal/config"
 	"github.com/nqmgaming/blockads-tunnel/internal/mitm"
 	"github.com/nqmgaming/blockads-tunnel/internal/packet"
 	"github.com/nqmgaming/blockads-tunnel/internal/safesearch"
@@ -21,6 +22,9 @@ type SafeSearchResult = safesearch.SafeSearchResult
 type SafeSearchAction = safesearch.SafeSearchAction
 type ScriptletRule = scriptlet.Rule
 type scriptletStore = scriptlet.Store
+
+type QuanXMatcher = config.Matcher
+type QuanXConfig = config.Config
 
 type CertManager = mitm.CertManager
 type MitmFilter = mitm.MitmFilter

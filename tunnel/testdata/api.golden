@@ -59,6 +59,7 @@ type DomainChecker interface
 	method DomainChecker.HasCustomRule(domain string) int
 	method DomainChecker.IsBlocked(domain string) bool
 type Engine struct
+	method Engine.ClearQuanXConfig()
 	method Engine.GetMitmCACert(certDir string) string
 	method Engine.GetRouter() *Router
 	method Engine.GetStats() string
@@ -70,6 +71,8 @@ type Engine struct
 	method Engine.IsUsingTcpStack() bool
 	method Engine.LogConnection(flow internal/mitm.FlowID, protocol int)
 	method Engine.LookupIP(host string) (net.IP, error)
+	method Engine.MatchQuanX(domain string, ip string) string
+	method Engine.QuanXRuleCount() int
 	method Engine.ServeDNS(w github.com/miekg/dns.ResponseWriter, r *github.com/miekg/dns.Msg)
 	method Engine.SetAdPathPatterns(patternsCsv string)
 	method Engine.SetAppResolver(resolver AppResolver)
@@ -90,6 +93,7 @@ type Engine struct
 	method Engine.SetMitmAllowedUIDs(uidsCsv string)
 	method Engine.SetODoHRelay(relayURL string)
 	method Engine.SetOutboundAdapter(adapter OutboundAdapter)
+	method Engine.SetQuanXConfig(content string) (int, error)
 	method Engine.SetSafeSearch(enabled bool)
 	method Engine.SetScriptletRules(content string)
 	method Engine.SetScriptletRulesFromFile(filePath string) error
@@ -145,6 +149,7 @@ type OutboundAdapter interface
 	method OutboundAdapter.Stop()
 	method OutboundAdapter.SupportsStreams() bool
 var ParseProtocol func(s string) internal/dns.DNSProtocol
+func ParseQuanXSummary(content string) string
 var ParseResponseType func(s string) internal/packet.ResponseType
 var ParseTUNPacket func(packet []byte, length int) *internal/packet.DNSQueryInfo
 var ParseWgConfigJSON func(jsonStr string) (*internal/wireguard.WgConfig, error)
@@ -155,6 +160,19 @@ const ProtocolODoH internal/dns.DNSProtocol = 4
 const ProtocolPlain internal/dns.DNSProtocol = 0
 const ProtocolTCP untyped int = 6
 const ProtocolUDP untyped int = 17
+type QuanXConfig = internal/config.Config
+	field QuanXConfig.General map[string]string
+	field QuanXConfig.DNSServers []string
+	field QuanXConfig.Rules []internal/config.Rule
+	field QuanXConfig.RemoteFilters []internal/config.RemoteFilter
+	field QuanXConfig.FinalPolicy string
+	method QuanXConfig.String() string
+type QuanXMatcher = internal/config.Matcher
+	method QuanXMatcher.FinalPolicy() string
+	method QuanXMatcher.Match(domain string, ipStr string) (string, string)
+	method QuanXMatcher.MatchNetIP(domain string, ip net.IP) (string, string)
+	method QuanXMatcher.MatchWithUA(domain string, ipStr string, userAgent string) (string, string)
+	method QuanXMatcher.RulesCount() int
 func ResolveHostForProtection(hostname string) string
 type Resolver = internal/dns.Resolver
 	method Resolver.Configure(protocol internal/dns.DNSProtocol, primary string, fallback string, dohURL string)
