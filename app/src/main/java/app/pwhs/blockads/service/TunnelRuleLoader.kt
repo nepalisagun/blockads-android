@@ -80,4 +80,10 @@ object TunnelRuleLoader {
             .filter { it.isNotBlank() }
             .joinToString("\n\n")
     }
+
+    fun loadPresetBrowsers(context: Context): Set<String> = runCatching {
+        context.assets.open("preset/browsers.txt").bufferedReader().useLines { lines ->
+            lines.map { it.trim() }.filter { it.isNotEmpty() && !it.startsWith("#") }.toSet()
+        }
+    }.getOrDefault(setOf("com.android.chrome", "org.mozilla.firefox", "com.brave.browser"))
 }

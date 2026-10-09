@@ -8,6 +8,7 @@ import android.os.ParcelFileDescriptor
 import androidx.test.core.app.ApplicationProvider
 import androidx.work.WorkManager
 import androidx.work.testing.WorkManagerTestInitHelper
+import app.pwhs.blockads.data.dao.ConfigDao
 import app.pwhs.blockads.data.dao.DnsLogDao
 import app.pwhs.blockads.data.dao.FirewallRuleDao
 import app.pwhs.blockads.data.datastore.AppPreferences
@@ -92,6 +93,7 @@ class AdBlockVpnServiceShellTest {
                 single { filterRepo }
                 single { dnsLogDao }
                 single<FirewallRuleDao> { mockk(relaxed = true) }
+                single<ConfigDao> { mockk(relaxed = true) }
             })
         }
         mockkStatic(Tunnel::class)
@@ -116,7 +118,7 @@ class AdBlockVpnServiceShellTest {
 
     @After
     fun tearDown() {
-        controller.destroy()
+        if (::controller.isInitialized) controller.destroy()
         ServiceStateHack.reset()
         stopKoin()
         unmockkAll()

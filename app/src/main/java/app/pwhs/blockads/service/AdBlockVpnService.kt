@@ -9,6 +9,7 @@ import android.os.Build
 import android.os.ParcelFileDescriptor
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import app.pwhs.blockads.data.dao.ConfigDao
 import app.pwhs.blockads.data.dao.DnsLogDao
 import app.pwhs.blockads.data.dao.FirewallRuleDao
 import app.pwhs.blockads.data.datastore.AppPreferences
@@ -97,6 +98,7 @@ class AdBlockVpnService : VpnService() {
     private lateinit var connectionSupervisor: VpnConnectionSupervisor
     private lateinit var engineCoordinator: VpnEngineCoordinator
     private lateinit var firewallRuleDao: FirewallRuleDao
+    private lateinit var configDao: ConfigDao
     private lateinit var appNameResolver: AppNameResolver
     private lateinit var session: VpnSessionController
 
@@ -111,6 +113,7 @@ class AdBlockVpnService : VpnService() {
         appPrefs = koin.get()
         dnsLogDao = koin.get()
         firewallRuleDao = koin.get()
+        configDao = koin.get()
 
         appNameResolver = AppNameResolver(this)
         batteryMonitor = BatteryMonitor(this)
@@ -205,6 +208,14 @@ class AdBlockVpnService : VpnService() {
                         engineCoordinator.reloadDns(goTunnelAdapter)
                     }
                 }
+        }
+        serviceScope.launch {
+            configDao.getActiveFlow().collect { activeConfig ->
+                if (::goTunnelAdapter.isInitialized) {
+                    val count = goTunnelAdapter.setQuanXConfig(activeConfig?.content ?: "")
+                    Timber.d("Active QuanX config updated in Go engine: %s (%d rules)", activeConfig?.name, count)
+                }
+            }
         }
     }
 

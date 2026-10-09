@@ -294,7 +294,7 @@ class GoTunnelAdapter(
         if (mitmMode) {
             try {
                 val pm = context.packageManager
-                val browsers = selectedBrowsers.ifEmpty { loadPresetBrowsers() }
+                val browsers = selectedBrowsers.ifEmpty { TunnelRuleLoader.loadPresetBrowsers(context) }
                 val uids = browsers.mapNotNull { pkg ->
                     runCatching { pm.getPackageUid(pkg, 0) }.getOrNull()
                 }.joinToString(",")
@@ -482,11 +482,13 @@ class GoTunnelAdapter(
         return engine.stats
     }
 
-    private fun loadPresetBrowsers(): Set<String> = runCatching {
-        context.assets.open("preset/browsers.txt").bufferedReader().useLines { lines ->
-            lines.map { it.trim() }.filter { it.isNotEmpty() && !it.startsWith("#") }.toSet()
-        }
-    }.getOrDefault(setOf("com.android.chrome", "org.mozilla.firefox", "com.brave.browser"))
+    fun setQuanXConfig(content: String): Long = runCatching {
+        engine.setQuanXConfig(content)
+    }.onFailure { Timber.e(it, "Failed to set QuanX config") }.getOrDefault(0L)
+
+    fun clearQuanXConfig() {
+        engine.clearQuanXConfig()
+    }
 
     companion object {
         private fun dnsQueryTypeToString(type: Int): String = when (type) {
