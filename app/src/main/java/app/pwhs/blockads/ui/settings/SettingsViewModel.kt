@@ -202,33 +202,30 @@ class SettingsViewModel(
         }
     }
 
+    private suspend fun scheduleUpdates() {
+        val context = getApplication<Application>().applicationContext
+        FilterUpdateScheduler.scheduleFilterUpdate(context, appPrefs)
+        app.pwhs.blockads.worker.ConfigUpdateScheduler.scheduleConfigUpdate(context, appPrefs)
+    }
+
     fun setAutoUpdateEnabled(enabled: Boolean) {
         viewModelScope.launch {
             appPrefs.setAutoUpdateEnabled(enabled)
-            FilterUpdateScheduler.scheduleFilterUpdate(
-                getApplication<Application>().applicationContext,
-                appPrefs
-            )
+            scheduleUpdates()
         }
     }
 
     fun setAutoUpdateFrequency(frequency: String) {
         viewModelScope.launch {
             appPrefs.setAutoUpdateFrequency(frequency)
-            FilterUpdateScheduler.scheduleFilterUpdate(
-                getApplication<Application>().applicationContext,
-                appPrefs
-            )
+            scheduleUpdates()
         }
     }
 
     fun setAutoUpdateWifiOnly(wifiOnly: Boolean) {
         viewModelScope.launch {
             appPrefs.setAutoUpdateWifiOnly(wifiOnly)
-            FilterUpdateScheduler.scheduleFilterUpdate(
-                getApplication<Application>().applicationContext,
-                appPrefs
-            )
+            scheduleUpdates()
         }
     }
 

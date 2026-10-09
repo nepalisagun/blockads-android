@@ -20,6 +20,7 @@ import app.pwhs.blockads.ui.event.UiEvent
 import app.pwhs.blockads.ui.keepHot
 import app.pwhs.blockads.ui.settle
 import app.pwhs.blockads.utils.CrashReportingManager
+import app.pwhs.blockads.worker.ConfigUpdateScheduler
 import app.pwhs.blockads.worker.DailySummaryScheduler
 import app.pwhs.blockads.worker.FilterUpdateScheduler
 import io.mockk.Runs
@@ -60,9 +61,10 @@ class SettingsViewModelTest {
 
     @Before
     fun setUp() {
-        mockkObject(ServiceController, FilterUpdateScheduler, DailySummaryScheduler, CrashReportingManager, IptablesManager)
+        mockkObject(ServiceController, FilterUpdateScheduler, ConfigUpdateScheduler, DailySummaryScheduler, CrashReportingManager, IptablesManager)
         every { ServiceController.requestRestart(any()) } just Runs
         coEvery { FilterUpdateScheduler.scheduleFilterUpdate(any(), any()) } just Runs
+        coEvery { ConfigUpdateScheduler.scheduleConfigUpdate(any(), any()) } just Runs
         every { DailySummaryScheduler.scheduleDailySummary(any()) } just Runs
         every { DailySummaryScheduler.cancelDailySummary(any()) } just Runs
         every { CrashReportingManager.toggleSentry(any(), any()) } just Runs

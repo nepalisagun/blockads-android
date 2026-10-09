@@ -40,4 +40,10 @@ interface ConfigDao {
 
     @Query("SELECT COUNT(*) FROM configs")
     suspend fun getCount(): Int
+
+    @Query("SELECT * FROM configs WHERE remoteUrl IS NOT NULL AND autoUpdate = 1")
+    suspend fun getAutoUpdateConfigs(): List<ConfigProfile>
+
+    @Query("UPDATE configs SET content = :content, lastUpdated = :lastUpdated WHERE id = :id")
+    suspend fun updateContent(id: Long, content: String, lastUpdated: Long)
 }
