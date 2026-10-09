@@ -8,10 +8,8 @@ import app.pwhs.blockads.data.dao.CustomDnsRuleDao
 import app.pwhs.blockads.data.dao.DnsLogDao
 import app.pwhs.blockads.data.dao.FilterListDao
 import app.pwhs.blockads.data.dao.FirewallRuleDao
-import app.pwhs.blockads.data.dao.ProtectionProfileDao
 import app.pwhs.blockads.data.dao.WhitelistDomainDao
 import app.pwhs.blockads.data.datastore.AppPreferences
-import app.pwhs.blockads.data.entities.ProfileManager
 import app.pwhs.blockads.data.repository.FilterListRepository
 import app.pwhs.blockads.service.AdBlockVpnService
 import app.pwhs.blockads.service.IptablesManager
@@ -80,8 +78,6 @@ class SettingsViewModelTest {
         whitelistDomainDao = mockk<WhitelistDomainDao>(relaxed = true),
         filterListDao = mockk<FilterListDao>(relaxed = true),
         customDnsRuleDao = mockk<CustomDnsRuleDao>(relaxed = true),
-        profileDao = mockk<ProtectionProfileDao>(relaxed = true),
-        profileManager = mockk<ProfileManager>(relaxed = true),
         firewallRuleDao = mockk<FirewallRuleDao>(relaxed = true),
         application = app,
     )

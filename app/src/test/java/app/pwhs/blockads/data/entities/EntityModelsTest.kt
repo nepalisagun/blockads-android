@@ -55,16 +55,6 @@ class EntityModelsTest {
     }
 
     @Test
-    fun `preset detection`() {
-        listOf(
-            ProtectionProfile.TYPE_DEFAULT, ProtectionProfile.TYPE_STRICT, ProtectionProfile.TYPE_FAMILY,
-            ProtectionProfile.TYPE_GAMING, ProtectionProfile.TYPE_STRICT_FAMILY,
-        ).forEach { assertTrue(it, ProtectionProfile.isPreset(it)) }
-        assertFalse(ProtectionProfile.isPreset(ProtectionProfile.TYPE_CUSTOM))
-        assertFalse(ProtectionProfile.isPreset("default"))
-    }
-
-    @Test
     fun `dns provider lookups`() {
         assertEquals(DnsProviders.GOOGLE, DnsProviders.getById("google"))
         assertEquals(DnsProviders.GOOGLE, DnsProviders.getByIp("8.8.8.8"))
@@ -77,12 +67,5 @@ class EntityModelsTest {
         assertEquals(DnsProviders.DNSBUNKER, DnsProviders.getById("dnsbunker"))
         assertEquals(DnsProviders.DNSBUNKER_DOQ, DnsProviders.getById("dnsbunker_doq"))
         assertEquals(DnsProviders.DNSBUNKER, DnsProviders.getByIp("185.250.250.61"))
-    }
-
-    @Test
-    fun `new profile schedules run every day and are enabled`() {
-        val s = ProfileSchedule(profileId = 1, startHour = 1, startMinute = 0, endHour = 2, endMinute = 0)
-        assertEquals("1,2,3,4,5,6,7", s.daysOfWeek)
-        assertTrue(s.isEnabled)
     }
 }

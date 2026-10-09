@@ -18,7 +18,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import app.pwhs.blockads.data.entities.ProfileManager
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
@@ -29,7 +28,6 @@ class FilterSetupViewModel(
     private val filterRepo: FilterListRepository,
     private val filterListDao: FilterListDao,
     private val customFilterManager: CustomFilterManager,
-    private val profileManager: ProfileManager,
     private val application: Application,
     private val appPreferences: AppPreferences? = null
 ) : ViewModel() {
@@ -79,7 +77,6 @@ class FilterSetupViewModel(
     fun toggleFilterList(filter: FilterList) {
         viewModelScope.launch {
             filterListDao.setEnabled(filter.id, !filter.isEnabled)
-            profileManager.saveActiveProfileFilterUrls()
             // Recalculate the active domain count immediately even if VPN is stopped
             filterRepo.loadAllEnabledFilters()
             ServiceController.requestRestart(application.applicationContext)
@@ -115,7 +112,6 @@ class FilterSetupViewModel(
 
                 result.fold(
                     onSuccess = { _ ->
-                        profileManager.saveActiveProfileFilterUrls()
                         _events.toast(R.string.settings_add, listOf(": $name"))
                         _filterAddedEvent.tryEmit(Unit)
 
@@ -136,7 +132,6 @@ class FilterSetupViewModel(
         viewModelScope.launch {
             // Deletes the DB entity AND the local binary files (.trie, .bloom, .css)
             customFilterManager.deleteCustomFilter(filter)
-            profileManager.saveActiveProfileFilterUrls()
             // Reload the filter engine without this filter
             filterRepo.loadAllEnabledFilters()
             ServiceController.requestRestart(application.applicationContext)

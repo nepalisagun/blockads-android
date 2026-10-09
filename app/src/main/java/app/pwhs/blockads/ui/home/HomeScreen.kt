@@ -96,7 +96,6 @@ import app.pwhs.blockads.utils.formatCount
 import app.pwhs.blockads.utils.formatDataSize
 import app.pwhs.blockads.utils.formatTimeSince
 import app.pwhs.blockads.utils.formatUptimeShort
-import app.pwhs.blockads.utils.profileIcon
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import org.koin.androidx.compose.koinViewModel
 import java.util.Locale
@@ -130,7 +129,7 @@ fun HomeScreen(
     val milestoneReached by viewModel.milestoneReached.collectAsStateWithLifecycle()
     val topBlockedDomains by viewModel.topBlockedDomains.collectAsStateWithLifecycle()
     val protectionUptimeMs by viewModel.protectionUptimeMs.collectAsStateWithLifecycle()
-    val activeProfile by viewModel.activeProfile.collectAsStateWithLifecycle()
+    val activeConfig by viewModel.activeConfig.collectAsStateWithLifecycle()
     val securityFilterIds by viewModel.securityFilterIds.collectAsStateWithLifecycle()
     val whitelistedDomains by viewModel.whitelistedDomains.collectAsStateWithLifecycle()
     val routingMode by viewModel.routingMode.collectAsStateWithLifecycle()
@@ -228,13 +227,13 @@ fun HomeScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Icon(
-                        imageVector = profileIcon(activeProfile?.profileType),
+                        painter = painterResource(R.drawable.ic_settings_dns),
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(16.dp)
                     )
                     Text(
-                        text = activeProfile?.name ?: stringResource(R.string.profile_name_default),
+                        text = activeConfig?.name ?: stringResource(R.string.profile_name_default),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.primary
                     )

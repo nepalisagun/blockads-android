@@ -55,10 +55,10 @@ class SettingsBackupTest {
         db = Room.inMemoryDatabaseBuilder(app, AppDatabase::class.java).allowMainThreadQueries().build()
         WorkManagerTestInitHelper.initializeTestWorkManager(app)
         prefs = AppPreferences(app)
-        vm = newViewModel(app, profileManager = mockk(relaxed = true))
+        vm = newViewModel(app)
     }
 
-    private fun newViewModel(app: Application, profileManager: app.pwhs.blockads.data.entities.ProfileManager) =
+    private fun newViewModel(app: Application) =
         SettingsViewModel(
             appPrefs = prefs,
             filterRepo = mockk(relaxed = true),
@@ -66,8 +66,6 @@ class SettingsBackupTest {
             whitelistDomainDao = db.whitelistDomainDao(),
             filterListDao = db.filterListDao(),
             customDnsRuleDao = db.customDnsRuleDao(),
-            profileDao = db.protectionProfileDao(),
-            profileManager = profileManager,
             firewallRuleDao = db.firewallRuleDao(),
             application = app,
         )
@@ -114,19 +112,5 @@ class SettingsBackupTest {
         assertEquals("settings missing from the backup", emptyList<String>(), gaps)
     }
 
-    @Ignore("known bug: needs decision on transactional import strategy")
-    @Test
-    fun `an import that fails partway leaves settings unchanged`() {
-        val failing = mockk<app.pwhs.blockads.data.entities.ProfileManager> {
-            coEvery { saveActiveProfileFilterUrls() } throws IllegalStateException("late failure")
-        }
-        vm = newViewModel(ApplicationProvider.getApplicationContext(), failing)
-        runBlocking { prefs.setUpstreamDns("9.9.9.9") }
-        val file = tempFolder.newFile("incoming.json").apply { writeText("""{"upstreamDns":"1.1.1.1"}""") }
-
-        val event = awaitEvent { vm.importSettings(Uri.fromFile(file)) } as UiEvent.ToastRes
-
-        assertEquals(listOf("late failure"), event.args)
-        assertEquals("9.9.9.9", runBlocking { prefs.upstreamDns.first() })
-    }
 }
+

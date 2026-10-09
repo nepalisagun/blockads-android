@@ -1,13 +1,5 @@
 package app.pwhs.blockads.utils
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.FamilyRestroom
-import androidx.compose.material.icons.filled.GppGood
-import androidx.compose.material.icons.filled.Security
-import androidx.compose.material.icons.filled.Shield
-import androidx.compose.material.icons.filled.SportsEsports
-import androidx.compose.material.icons.filled.Tune
-import app.pwhs.blockads.data.entities.ProtectionProfile
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -111,16 +103,5 @@ class FormatUtilTest {
         val cal = Calendar.getInstance().apply { timeInMillis = start }
         assertEquals(0, cal.get(Calendar.HOUR_OF_DAY) + cal.get(Calendar.MINUTE) + cal.get(Calendar.SECOND))
         assertTrue(System.currentTimeMillis() - start in 0 until 86_400_000)
-    }
-
-    @Test
-    fun `profileIcon maps each preset and falls back for custom`() {
-        assertEquals(Icons.Default.GppGood, profileIcon(ProtectionProfile.TYPE_DEFAULT))
-        assertEquals(Icons.Default.Security, profileIcon(ProtectionProfile.TYPE_STRICT))
-        assertEquals(Icons.Default.FamilyRestroom, profileIcon(ProtectionProfile.TYPE_FAMILY))
-        assertEquals(Icons.Default.Shield, profileIcon(ProtectionProfile.TYPE_STRICT_FAMILY))
-        assertEquals(Icons.Default.SportsEsports, profileIcon(ProtectionProfile.TYPE_GAMING))
-        assertEquals(Icons.Default.Tune, profileIcon(ProtectionProfile.TYPE_CUSTOM))
-        assertEquals(Icons.Default.Tune, profileIcon(null))
     }
 }

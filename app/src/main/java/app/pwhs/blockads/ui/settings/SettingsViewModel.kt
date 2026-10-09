@@ -11,7 +11,6 @@ import app.pwhs.blockads.data.dao.CustomDnsRuleDao
 import app.pwhs.blockads.data.dao.DnsLogDao
 import app.pwhs.blockads.data.dao.FilterListDao
 import app.pwhs.blockads.data.dao.FirewallRuleDao
-import app.pwhs.blockads.data.dao.ProtectionProfileDao
 import app.pwhs.blockads.data.dao.WhitelistDomainDao
 import app.pwhs.blockads.data.datastore.AppPreferences
 import app.pwhs.blockads.data.entities.CustomDnsRule
@@ -19,7 +18,6 @@ import app.pwhs.blockads.data.entities.FilterList
 import app.pwhs.blockads.data.entities.FilterListBackup
 import app.pwhs.blockads.data.entities.FirewallRule
 import app.pwhs.blockads.data.entities.FirewallRuleBackup
-import app.pwhs.blockads.data.entities.ProfileManager
 import app.pwhs.blockads.data.entities.RuleType
 import app.pwhs.blockads.data.entities.SettingsBackup
 import app.pwhs.blockads.data.entities.WhitelistDomain
@@ -52,8 +50,6 @@ class SettingsViewModel(
     private val whitelistDomainDao: WhitelistDomainDao,
     private val filterListDao: FilterListDao,
     private val customDnsRuleDao: CustomDnsRuleDao,
-    private val profileDao: ProtectionProfileDao,
-    private val profileManager: ProfileManager,
     private val firewallRuleDao: FirewallRuleDao,
     application: Application,
 ) : AndroidViewModel(application) {
@@ -296,7 +292,6 @@ class SettingsViewModel(
     fun exportSettings(uri: Uri) {
         viewModelScope.launch {
             try {
-                val activeProfile = profileDao.getActive()
                 val backup = SettingsBackup(
                     upstreamDns = appPrefs.upstreamDns.first(),
                     fallbackDns = appPrefs.fallbackDns.first(),
@@ -307,7 +302,7 @@ class SettingsViewModel(
                     youtubeRestrictedMode = appPrefs.youtubeRestrictedMode.first(),
                     dailySummaryEnabled = appPrefs.dailySummaryEnabled.first(),
                     milestoneNotificationsEnabled = appPrefs.milestoneNotificationsEnabled.first(),
-                    activeProfileType = activeProfile?.profileType ?: "",
+                    activeProfileType = "",
                     firewallEnabled = appPrefs.firewallEnabled.first(),
                     filterLists = filterListDao.getAllSync().map { f ->
                         FilterListBackup(name = f.name, url = f.url, isEnabled = f.isEnabled)
@@ -462,18 +457,6 @@ class SettingsViewModel(
                             )
                         )
                     }
-                }
-
-                // Restore active profile LAST — after all filter/rule data is in place.
-                if (backup.activeProfileType.isNotBlank()) {
-                    val profile = profileDao.getByType(backup.activeProfileType)
-                    if (profile != null) {
-                        val enabledUrls = backup.filterLists.filter { it.isEnabled }.map { it.url }.joinToString(",")
-                        profileDao.update(profile.copy(enabledFilterUrls = enabledUrls))
-                        profileManager.switchToProfile(profile.id)
-                    }
-                } else {
-                    profileManager.saveActiveProfileFilterUrls()
                 }
 
                 // Refresh in-memory whitelist and custom rules cache

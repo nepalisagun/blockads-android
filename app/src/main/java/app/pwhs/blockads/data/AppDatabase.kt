@@ -12,21 +12,20 @@ import app.pwhs.blockads.data.dao.DnsLogDao
 import app.pwhs.blockads.data.dao.ElementRuleDao
 import app.pwhs.blockads.data.dao.FilterListDao
 import app.pwhs.blockads.data.dao.FirewallRuleDao
-import app.pwhs.blockads.data.dao.ProtectionProfileDao
+import app.pwhs.blockads.data.dao.ConfigDao
 import app.pwhs.blockads.data.dao.WhitelistDomainDao
+import app.pwhs.blockads.data.entities.ConfigProfile
 import app.pwhs.blockads.data.entities.CustomDnsRule
 import app.pwhs.blockads.data.entities.DnsErrorEntry
 import app.pwhs.blockads.data.entities.DnsLogEntry
 import app.pwhs.blockads.data.entities.ElementRule
 import app.pwhs.blockads.data.entities.FilterList
 import app.pwhs.blockads.data.entities.FirewallRule
-import app.pwhs.blockads.data.entities.ProfileSchedule
-import app.pwhs.blockads.data.entities.ProtectionProfile
 import app.pwhs.blockads.data.entities.WhitelistDomain
 
 @Database(
-    entities = [DnsLogEntry::class, FilterList::class, WhitelistDomain::class, DnsErrorEntry::class, CustomDnsRule::class, FirewallRule::class, ProtectionProfile::class, ProfileSchedule::class, ElementRule::class],
-    version = 16,
+    entities = [DnsLogEntry::class, FilterList::class, WhitelistDomain::class, DnsErrorEntry::class, CustomDnsRule::class, FirewallRule::class, ConfigProfile::class, ElementRule::class],
+    version = 17,
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -36,7 +35,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun whitelistDomainDao(): WhitelistDomainDao
     abstract fun dnsErrorDao(): DnsErrorDao
     abstract fun customDnsRuleDao(): CustomDnsRuleDao
-    abstract fun protectionProfileDao(): ProtectionProfileDao
+    abstract fun configDao(): ConfigDao
     abstract fun firewallRuleDao(): FirewallRuleDao
     abstract fun elementRuleDao(): ElementRuleDao
 
@@ -226,10 +225,30 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_16_17 = object : Migration(16, 17) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("DROP TABLE IF EXISTS `profile_schedules`")
+                db.execSQL("DROP TABLE IF EXISTS `protection_profiles`")
+                db.execSQL(
+                    """CREATE TABLE IF NOT EXISTS `configs` (
+                        `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        `name` TEXT NOT NULL,
+                        `content` TEXT NOT NULL DEFAULT '',
+                        `remoteUrl` TEXT,
+                        `autoUpdate` INTEGER NOT NULL DEFAULT 1,
+                        `lastUpdated` INTEGER NOT NULL DEFAULT 0,
+                        `isActive` INTEGER NOT NULL DEFAULT 0,
+                        `isBuiltIn` INTEGER NOT NULL DEFAULT 0,
+                        `createdAt` INTEGER NOT NULL DEFAULT 0
+                    )"""
+                )
+            }
+        }
+
         internal val ALL_MIGRATIONS = arrayOf(
             MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8,
             MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15,
-            MIGRATION_15_16,
+            MIGRATION_15_16, MIGRATION_16_17,
         )
 
         fun getInstance(context: Context): AppDatabase {

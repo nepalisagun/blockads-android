@@ -76,7 +76,7 @@ import app.pwhs.blockads.ui.firewall.FirewallScreen
 import app.pwhs.blockads.ui.home.HomeScreen
 import app.pwhs.blockads.ui.httpsfiltering.HttpsFilteringScreen
 import app.pwhs.blockads.ui.logs.LogsScreen
-import app.pwhs.blockads.ui.profile.ProfileScreen
+import app.pwhs.blockads.ui.config.ConfigScreen
 import app.pwhs.blockads.ui.settings.SettingsScreen
 import app.pwhs.blockads.ui.statistics.StatisticsScreen
 import app.pwhs.blockads.ui.wireguard.WireGuardEditScreen
@@ -305,7 +305,7 @@ fun HomeApp(
                     )
                 }
                 entry<ProfileKey> {
-                    ProfileScreen(
+                    ConfigScreen(
                         onNavigateBack = {
                             safePop(homeStack)
                         }

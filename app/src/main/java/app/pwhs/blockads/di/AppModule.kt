@@ -4,7 +4,6 @@ import app.pwhs.blockads.BuildConfig
 import app.pwhs.blockads.data.AppDatabase
 import app.pwhs.blockads.data.dao.FirewallRuleDao
 import app.pwhs.blockads.data.datastore.AppPreferences
-import app.pwhs.blockads.data.entities.ProfileManager
 import app.pwhs.blockads.data.remote.FilterDownloadManager
 import app.pwhs.blockads.data.remote.api.CustomFilterApi
 import app.pwhs.blockads.data.repository.CustomFilterManager
@@ -15,7 +14,7 @@ import app.pwhs.blockads.ui.filter.FilterSetupViewModel
 import app.pwhs.blockads.ui.home.HomeViewModel
 import app.pwhs.blockads.ui.logs.LogViewModel
 import app.pwhs.blockads.ui.onboarding.OnboardingViewModel
-import app.pwhs.blockads.ui.profile.ProfileViewModel
+import app.pwhs.blockads.ui.config.ConfigViewModel
 import app.pwhs.blockads.ui.appearance.AppearanceViewModel
 import app.pwhs.blockads.ui.settings.SettingsViewModel
 import app.pwhs.blockads.ui.statistics.StatisticsViewModel
@@ -79,7 +78,7 @@ val appModule = module {
     single { get<AppDatabase>().whitelistDomainDao() }
     single { get<AppDatabase>().dnsErrorDao() }
     single { get<AppDatabase>().customDnsRuleDao() }
-    single { get<AppDatabase>().protectionProfileDao() }
+    single { get<AppDatabase>().configDao() }
     single { get<AppDatabase>().firewallRuleDao() }
     single { get<AppDatabase>().elementRuleDao() }
 
@@ -122,23 +121,13 @@ val appModule = module {
         )
     }
 
-    // Profile Manager
-    single {
-        ProfileManager(
-            profileDao = get(),
-            filterListDao = get(),
-            appPrefs = get(),
-            filterRepo = get()
-        )
-    }
-
     // ViewModels
     viewModel {
         HomeViewModel(
             appPrefs = get(),
             dnsLogDao = get(),
             filterRepo = get(),
-            profileDao = get(),
+            configDao = get(),
             filterListDao = get(),
             whitelistDomainDao = get(),
             customDnsRuleDao = get()
@@ -165,8 +154,6 @@ val appModule = module {
             whitelistDomainDao = get(),
             filterListDao = get(),
             customDnsRuleDao = get(),
-            profileDao = get(),
-            profileManager = get(),
             firewallRuleDao = get(),
             application = androidApplication()
         )
@@ -176,7 +163,6 @@ val appModule = module {
             filterRepo = get(),
             filterListDao = get(),
             customFilterManager = get(),
-            profileManager = get(),
             application = androidApplication(),
             appPreferences = get()
         )
@@ -187,7 +173,6 @@ val appModule = module {
             filterListDao = get(),
             dnsLogDao = get(),
             filterRepo = get(),
-            profileManager = get(),
             application = androidApplication(),
             customFilterManager = get()
         )
@@ -225,10 +210,9 @@ val appModule = module {
         )
     }
     viewModel {
-        ProfileViewModel(
-            profileManager = get(),
-            profileDao = get(),
-            filterListDao = get(),
+        ConfigViewModel(
+            configDao = get(),
+            client = get(),
             application = androidApplication()
         )
     }

@@ -7,7 +7,6 @@ import app.pwhs.blockads.data.datastore.AppPreferences
 import app.pwhs.blockads.data.datastore.prefs.FilterPreferences
 import app.pwhs.blockads.data.dao.FilterListDao
 import app.pwhs.blockads.data.entities.FilterList
-import app.pwhs.blockads.data.entities.ProfileManager
 import app.pwhs.blockads.data.repository.CustomFilterManager
 import app.pwhs.blockads.data.repository.FilterListRepository
 import app.pwhs.blockads.service.ServiceController
@@ -48,8 +47,7 @@ class FilterSetupViewModelTest {
     private val repo: FilterListRepository = mockk(relaxed = true)
     private val dao: FilterListDao = mockk(relaxed = true) { every { getAll() } returns lists }
     private val customFilters: CustomFilterManager = mockk(relaxed = true)
-    private val profileManager: ProfileManager = mockk(relaxed = true)
-    private val vm by lazy { FilterSetupViewModel(repo, dao, customFilters, profileManager, mockk<Application>(relaxed = true)) }
+    private val vm by lazy { FilterSetupViewModel(repo, dao, customFilters, mockk<Application>(relaxed = true)) }
 
     @Before
     fun setUp() {
@@ -79,11 +77,10 @@ class FilterSetupViewModelTest {
     }
 
     @Test
-    fun `toggling saves the active profile, reloads and restarts`() {
+    fun `toggling saves the filter state, reloads and restarts`() {
         vm.toggleFilterList(lists.value[0])
         coVerifyOrder {
             dao.setEnabled(1, false)
-            profileManager.saveActiveProfileFilterUrls()
             repo.loadAllEnabledFilters()
         }
         verify { ServiceController.requestRestart(any()) }
@@ -111,7 +108,6 @@ class FilterSetupViewModelTest {
             awaitItem()
         }
         assertFalse(vm.isAddingCustomFilter.value)
-        coVerify { profileManager.saveActiveProfileFilterUrls() }
         coVerify { repo.loadAllEnabledFilters() }
         verify { ServiceController.requestRestart(any()) }
     }
@@ -124,7 +120,6 @@ class FilterSetupViewModelTest {
             vm.addFilterList("n", "https://bad")
             assertEquals(UiEvent.ToastRes(R.string.filter_update_failed), awaitItem())
         }
-        coVerify(exactly = 0) { profileManager.saveActiveProfileFilterUrls() }
         assertFalse(vm.isAddingCustomFilter.value)
     }
 
@@ -149,11 +144,10 @@ class FilterSetupViewModelTest {
     }
 
     @Test
-    fun `deleting a custom list cleans up, saves the profile, reloads and restarts`() {
+    fun `deleting a custom list cleans up, reloads and restarts`() {
         vm.deleteFilterList(lists.value[1])
         coVerifyOrder {
             customFilters.deleteCustomFilter(lists.value[1])
-            profileManager.saveActiveProfileFilterUrls()
             repo.loadAllEnabledFilters()
         }
         verify { ServiceController.requestRestart(any()) }
@@ -239,7 +233,7 @@ class FilterSetupViewModelTest {
         val appPrefs: AppPreferences = mockk {
             every { filter } returns filterPrefs
         }
-        val testVm = FilterSetupViewModel(repo, dao, customFilters, profileManager, mockk<Application>(relaxed = true), appPrefs)
+        val testVm = FilterSetupViewModel(repo, dao, customFilters, mockk<Application>(relaxed = true), appPrefs)
         val filter = FilterList(id = 1, name = "Test", url = "https://example.com/filter.txt")
         testVm.toggleStarredFilter(filter)
         coVerify(exactly = 1) { filterPrefs.toggleStarredFilter("https://example.com/filter.txt") }

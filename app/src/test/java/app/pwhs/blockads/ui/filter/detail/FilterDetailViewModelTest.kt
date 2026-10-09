@@ -6,7 +6,6 @@ import app.pwhs.blockads.R
 import app.pwhs.blockads.data.dao.DnsLogDao
 import app.pwhs.blockads.data.dao.FilterListDao
 import app.pwhs.blockads.data.entities.FilterList
-import app.pwhs.blockads.data.entities.ProfileManager
 import app.pwhs.blockads.data.repository.CustomFilterManager
 import app.pwhs.blockads.data.repository.FilterListRepository
 import app.pwhs.blockads.service.ServiceController
@@ -50,10 +49,9 @@ class FilterDetailViewModelTest {
     private val dao: FilterListDao = mockk(relaxed = true) { every { getByIdFlow(5) } returns current }
     private val dnsLogDao: DnsLogDao = mockk(relaxed = true) { every { getBlockedCountByReason("5") } returns flowOf(12) }
     private val repo: FilterListRepository = mockk(relaxed = true)
-    private val profileManager: ProfileManager = mockk(relaxed = true)
     private val customFilters: CustomFilterManager = mockk(relaxed = true)
     private val vm by lazy {
-        FilterDetailViewModel(5, dao, dnsLogDao, repo, profileManager, mockk<Application>(relaxed = true), customFilters)
+        FilterDetailViewModel(5, dao, dnsLogDao, repo, mockk<Application>(relaxed = true), customFilters)
     }
 
     @Before
@@ -91,11 +89,10 @@ class FilterDetailViewModelTest {
     }
 
     @Test
-    fun `toggling flips enabled, saves the profile and restarts`() = runTest {
+    fun `toggling flips enabled and restarts`() = runTest {
         hot()
         vm.toggleFilter()
         coVerify { dao.setEnabled(5, false) }
-        coVerify { profileManager.saveActiveProfileFilterUrls() }
         verify { ServiceController.requestRestart(any()) }
     }
 
@@ -195,11 +192,10 @@ class FilterDetailViewModelTest {
     }
 
     @Test
-    fun `deleting a custom list removes it, saves the profile and restarts`() = runTest {
+    fun `deleting a custom list removes it and restarts`() = runTest {
         hot()
         vm.deleteFilter()
         coVerify { dao.delete(custom) }
-        coVerify { profileManager.saveActiveProfileFilterUrls() }
         verify { ServiceController.requestRestart(any()) }
     }
 

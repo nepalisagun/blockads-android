@@ -5,7 +5,6 @@ import androidx.test.core.app.ApplicationProvider
 import app.pwhs.blockads.data.dao.CustomDnsRuleDao
 import app.pwhs.blockads.data.dao.DnsLogDao
 import app.pwhs.blockads.data.dao.FilterListDao
-import app.pwhs.blockads.data.dao.ProtectionProfileDao
 import app.pwhs.blockads.data.dao.WhitelistDomainDao
 import app.pwhs.blockads.data.datastore.AppPreferences
 import app.pwhs.blockads.data.entities.FilterList
@@ -95,7 +94,7 @@ class HomeViewModelTest {
             appPrefs,
             dnsLogDao,
             repo,
-            mockk<ProtectionProfileDao>(relaxed = true),
+            mockk<app.pwhs.blockads.data.dao.ConfigDao>(relaxed = true),
             filterListDao,
             whitelistDomainDao,
             customDnsRuleDao

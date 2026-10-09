@@ -5,13 +5,13 @@ import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.pwhs.blockads.data.dao.DnsLogDao
+import app.pwhs.blockads.data.dao.ConfigDao
 import app.pwhs.blockads.data.dao.FilterListDao
-import app.pwhs.blockads.data.dao.ProtectionProfileDao
+import app.pwhs.blockads.data.entities.ConfigProfile
 import app.pwhs.blockads.data.entities.DailyStat
 import app.pwhs.blockads.data.entities.DnsLogEntry
 import app.pwhs.blockads.data.entities.FilterList
 import app.pwhs.blockads.data.entities.HourlyStat
-import app.pwhs.blockads.data.entities.ProtectionProfile
 import app.pwhs.blockads.data.entities.TopBlockedDomain
 import app.pwhs.blockads.data.repository.FilterListRepository
 import app.pwhs.blockads.service.AdBlockVpnService
@@ -50,7 +50,7 @@ class HomeViewModel(
     private val appPrefs: AppPreferences,
     dnsLogDao: DnsLogDao,
     private val filterRepo: FilterListRepository,
-    profileDao: ProtectionProfileDao,
+    configDao: ConfigDao,
     filterListDao: FilterListDao,
     private val whitelistDomainDao: WhitelistDomainDao,
     private val customDnsRuleDao: CustomDnsRuleDao,
@@ -146,7 +146,7 @@ class HomeViewModel(
     val topBlockedDomains: StateFlow<List<TopBlockedDomain>> = dnsLogDao.getTopBlockedDomains()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    val activeProfile: StateFlow<ProtectionProfile?> = profileDao.getActiveFlow()
+    val activeConfig: StateFlow<ConfigProfile?> = configDao.getActiveFlow()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     val milestoneReached: StateFlow<Long?> = combine(
